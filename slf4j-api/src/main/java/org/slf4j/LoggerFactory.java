@@ -101,6 +101,10 @@ public final class LoggerFactory {
 
     static boolean DETECT_LOGGER_NAME_MISMATCH = Util.safeGetBooleanSystemProperty(DETECT_LOGGER_NAME_MISMATCH_PROPERTY);
 
+    static final String SERVICE_PROVIDER_PROPERTY = "slf4j.serviceProvider";
+
+    static String SERVICE_PROVIDER = Util.safeGetSystemProperty(SERVICE_PROVIDER_PROPERTY);
+
     static volatile SLF4JServiceProvider PROVIDER;
 
     // Package access for tests
@@ -132,7 +136,9 @@ public final class LoggerFactory {
     private static void safelyInstantiate(List<SLF4JServiceProvider> providerList, Iterator<SLF4JServiceProvider> iterator) {
         try {
             SLF4JServiceProvider provider = iterator.next();
-            providerList.add(provider);
+            if (SERVICE_PROVIDER == null || provider.getClass().getName().equals(SERVICE_PROVIDER)) {
+                providerList.add(provider);
+            }
         } catch (ServiceConfigurationError e) {
             Util.report("A SLF4J service provider failed to instantiate:\n" + e.getMessage());
         }
